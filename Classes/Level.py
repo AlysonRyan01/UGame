@@ -1,6 +1,6 @@
 class Level:
     def __init__ (self):
-        self.window = None
+        self.screen = None
         self.name = None
         self.entity_list = None
 
