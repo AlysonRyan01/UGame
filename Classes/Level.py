@@ -1,3 +1,5 @@
+import random
+
 import pygame
 import threading
 import time
@@ -48,11 +50,13 @@ class Level:
     def rodaGirando(self):
         start_time = time.time()
 
-        while time.time() - start_time < 10:  # A roleta gira por 5 segundos
+        rotation_time = random.uniform(5, 10)
+
+        while time.time() - start_time < rotation_time:  # A roleta gira por 5 segundos
             if not self.is_rotating:  # Se a rotação for desativada, sai do loop
                 break
             seconds = time.time() - start_time
-            self.angle -= (20 - (seconds * 2))  # Incrementa o ângulo (ajuste a velocidade conforme necessário)
+            self.angle -= ((rotation_time*2) - (seconds * 2))  # Incrementa o ângulo (ajuste a velocidade conforme necessário)
             time.sleep(0.05)  # Controle da velocidade de rotação
 
         self.is_rotating = False  # Define como falso quando a rotação parar
