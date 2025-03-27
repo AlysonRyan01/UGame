@@ -1,5 +1,4 @@
 import random
-
 import pygame
 import threading
 import time
@@ -15,29 +14,62 @@ class Level:
         self.screen = screen
         self.name = name
         self.image = pygame.image.load('./Assets/Roleta.png')
+        self.seta_roleta = pygame.image.load('./Assets/seta.png')
+        self.rosto_normal = pygame.image.load('./Assets/rosto_normal.png')
+        self.rosto_feliz1 = pygame.image.load('./Assets/rosto_feliz1.png')
+        self.rosto_feliz2 = pygame.image.load('./Assets/rosto_feliz2.png')
+        self.rosto_feliz3 = pygame.image.load('./Assets/rosto_feliz3.png')
+        self.rosto_feliz4 = pygame.image.load('./Assets/rosto_feliz4.png')
+        self.rosto_triste1 = pygame.image.load('./Assets/rosto_triste1.png')
+        self.rosto_triste2 = pygame.image.load('./Assets/rosto_triste2.png')
+        self.rosto_triste3 = pygame.image.load('./Assets/rosto_triste3.png')
+        self.rosto_triste4 = pygame.image.load('./Assets/rosto_triste4.png')
+        self.rostos_tristes_list = [self.rosto_triste1, self.rosto_triste2, self.rosto_triste3, self.rosto_triste4]
+        self.rostos_felizes_list = [self.rosto_feliz1, self.rosto_feliz2, self.rosto_feliz3, self.rosto_feliz4]
         self.image = pygame.transform.scale(self.image, (600, 600))
         self.image_rect = self.image.get_rect(center=(SCREEN_WIDTH / 2, 750))
+        self.rosto_player = self.rosto_normal.get_rect(center=(195, 400))
+        self.rosto_bot = self.rosto_normal.get_rect(center=(1080, 400))
+        self.seta = self.seta_roleta.get_rect(center=((SCREEN_WIDTH / 2), 505))
+        self.rosto_1 = self.rosto_normal
+        self.rosto_2 = self.rosto_normal
         self.surf = pygame.image.load('./Assets/Cover.png')
         self.rect = self.surf.get_rect()
         self.angle = 0
         self.is_rotating = False
-        self.values = [100, 200, 300, 400, 500, 600, 700, 800]  # Valores das porções
+        self.values = [100, 200, 300, 400, 500, 600, 700, 800]
         self.player1 = Player('Player1')
         self.bot = Player('Bot')
         self.vencedor = {"vencedor": ''}
 
 
-    def run(self):
-        while self.vencedor["vencedor"] is '':
+        self.current_message = None
+        self.message_expire_time = 0
+        self.current_bot_message = None
+        self.bot_message_expire_time = 0
 
+    def run(self):
+        while self.vencedor["vencedor"] == '':
             self.screen.blit(source=self.surf, dest=self.rect)
             rotated_image = pygame.transform.rotate(self.image, self.angle)
             rotated_rect = rotated_image.get_rect(center=self.image_rect.center)
             self.screen.blit(rotated_image, rotated_rect)
 
-            self.menu_text(30, f"{str(self.player1.score)},00", (0, 0, 0), (185, 200))
+            self.screen.blit(self.rosto_1, self.rosto_player)
+            self.screen.blit(self.rosto_2, self.rosto_bot)
+            self.screen.blit(self.seta_roleta, self.seta)
 
-            self.menu_text(30, f"{str(self.bot.score)},00", (0, 0, 0), ((SCREEN_WIDTH - 120), 200))
+            self.menu_text(30, f"{str(self.player1.score)},00", (0, 0, 0), (195, 200))
+            self.menu_text(30, f"{str(self.bot.score)},00", (0, 0, 0), ((SCREEN_WIDTH - 110), 200))
+
+
+            if self.current_message and time.time() < self.message_expire_time:
+                text, color, pos = self.current_message
+                self.menu_text(20, text, color, pos)
+
+            if self.current_bot_message and time.time() < self.bot_message_expire_time:
+                text, color, pos = self.current_bot_message
+                self.menu_text(20, text, color, pos)
 
             pygame.display.flip()
 
@@ -51,12 +83,13 @@ class Level:
                     if self.is_mouse_over_button(mouse_x, mouse_y):
                         if not self.is_rotating:
                             self.is_rotating = True
-                            threading.Thread(target=self.rodaGirando).start()
+                            threading.Thread(target=self.roda_girando).start()
+
 
         while True:
-            self.screen.blit(source=self.surf, dest=self.rect)
-            self.menu_text(60, f"{self.vencedor["vencedor"]} venceu a partida", (255, 255, 255),
-                           ((SCREEN_WIDTH / 2), 250))
+            self.screen.fill((0, 0, 0))
+            self.menu_text(60, f"{self.vencedor['vencedor']} venceu a partida", (255, 255, 255),
+                           (SCREEN_WIDTH / 2, 250))
 
             pygame.display.flip()
 
@@ -66,91 +99,111 @@ class Level:
                     quit()
 
             time.sleep(3)
-
             return False
 
+    def roda_girando(self):
 
-
-
-    def rodaGirando(self):
         start_time = time.time()
-
         rotation_time = random.uniform(5, 10)
 
-        while time.time() - start_time < rotation_time:  # A roleta gira por 5 segundos
-            if not self.is_rotating:  # Se a rotação for desativada, sai do loop
+        while time.time() - start_time < rotation_time:
+            self.current_message = ('Você está girando a roleta', (0, 0, 0), (185, 650))
+            self.message_expire_time = time.time() + 0.1
+            if not self.is_rotating:
                 break
             seconds = time.time() - start_time
-            self.angle -= ((rotation_time*2) - (seconds * 2))  # Incrementa o ângulo (ajuste a velocidade conforme necessário)
-            time.sleep(0.05)  # Controle da velocidade de rotação
+            self.angle -= ((rotation_time * 2) - (seconds * 2))
+            time.sleep(0.05)
 
-        self.player1.update_score(self.valor_roleta())
-        print(self.player1.get_score())
+        valor = self.valor_roleta()
+        self.player1.update_score(valor)
+        print(f"Jogador: {self.player1.get_score()}")
 
-        if self.player1.score < 500:
+        if valor < 400:
+            self.rosto_1 = random.choice(self.rostos_tristes_list)
+            self.current_message = (f'Você perdeu R${valor - 400},00!', (0, 0, 0), (185, 650))
+            self.message_expire_time = time.time() + 2
+        elif valor == 400:
+            self.rosto_1 = self.rosto_triste3
+            self.current_message = ('Você não ganhou e nem perdeu!', (0, 0, 0), (185, 650))
+            self.message_expire_time = time.time() + 2
+        elif valor > 400:
+            self.rosto_1 = random.choice(self.rostos_felizes_list)
+            self.current_message = (f'Você ganhou R${valor - 400},00!', (0, 0, 0), (185, 650))
+            self.message_expire_time = time.time() + 2
+
+        if self.player1.score < 400:
             self.vencedor["vencedor"] = 'O bot'
-
-        if self.player1.score >= 3000:
-            self.vencedor["vencedor"] = 'Voce'
-
-        if self.vencedor["vencedor"] != '':
             return
 
-        time.sleep(1)
+        if self.player1.score >= 2500:
+            self.vencedor["vencedor"] = 'Você'
+            return
 
-        start_time1 = time.time()
+        time.sleep(2)
 
+
+        start_time = time.time()
         rotation_time = random.uniform(5, 10)
 
-        while time.time() - start_time1 < rotation_time:  # A roleta gira por 5 segundos
-            if not self.is_rotating:  # Se a rotação for desativada, sai do loop
+        while time.time() - start_time < rotation_time:
+            self.current_bot_message = ('O bot está girando a roleta', (0, 0, 0), (1100, 650))
+            self.bot_message_expire_time = time.time() + 0.1
+            if not self.is_rotating:
                 break
-            seconds = time.time() - start_time1
-            self.angle -= ((rotation_time * 2) - (seconds * 2))  # Incrementa o ângulo (ajuste a velocidade conforme necessário)
-            time.sleep(0.05)  # Controle da velocidade de rotação
+            seconds = time.time() - start_time
+            self.angle -= ((rotation_time * 2) - (seconds * 2))
+            time.sleep(0.05)
 
-        self.bot.update_score(self.valor_roleta())
-        print(self.bot.get_score())
+        valor = self.valor_roleta()
+        self.bot.update_score(valor)
+        print(f"Bot: {self.bot.get_score()}")
 
-        if self.bot.score < 500:
-            self.vencedor["vencedor"] = 'Voce'
+        if valor < 400:
+            self.rosto_2 = random.choice(self.rostos_tristes_list)
+            self.current_bot_message = (f'O bot perdeu R${valor - 400},00', (0, 0, 0), (1100, 650))
+            self.bot_message_expire_time = time.time() + 2
+        elif valor == 400:
+            self.rosto_2 = self.rosto_triste3
+            self.current_bot_message = ('O bot não ganhou e nem perdeu', (0, 0, 0), (1100, 650))
+            self.bot_message_expire_time = time.time() + 2
+        elif valor > 400:
+            self.rosto_2 = random.choice(self.rostos_felizes_list)
+            self.current_bot_message = (f'O bot ganhou R${valor - 400},00', (0, 0, 0), (1100, 650))
+            self.bot_message_expire_time = time.time() + 2
 
-        if self.bot.score >= 3000:
-            self.vencedor["vencedor"] = 'O bot'
+        time.sleep(2)
 
-        if self.vencedor["vencedor"] != '':
+        self.rosto_1 = self.rosto_normal
+        self.rosto_2 = self.rosto_normal
+
+        if self.bot.score < 400:
+            self.vencedor["vencedor"] = 'Você'
             return
 
-        self.is_rotating = False  # Define como falso quando a rotação parar
+        if self.bot.score >= 2500:
+            self.vencedor["vencedor"] = 'O bot'
+            return
 
-
-
+        self.is_rotating = False
 
     def valor_roleta(self):
-        # A roleta tem 360 graus e 8 porções, cada uma ocupando 45 graus.
-        # Calculamos em qual faixa de 45 graus o ângulo atual se encontra.
-        angle_mod = self.angle % 360  # Garantir que o ângulo esteja no intervalo [0, 360]
+        angle_mod = self.angle % 360
         portion_index = int(((angle_mod + 22.5) // 45) % len(self.values))
-        value = self.values[portion_index]  # Atribui o valor correspondente à porção
-        return value
-
-
-
+        return self.values[portion_index]
 
     def menu_text(self, text_size: int, text: str, text_color: tuple, text_center_pos: tuple):
-        text_font: Font = pygame.font.SysFont(name="impact", size=text_size)
+        text_font: Font = pygame.font.SysFont(name="arial", size=text_size)
         text_surf: Surface = text_font.render(text, True, text_color).convert_alpha()
         text_rect: Rect = text_surf.get_rect(center=text_center_pos)
         self.screen.blit(source=text_surf, dest=text_rect)
 
 
-
-
     def is_mouse_over_button(self, mouse_x, mouse_y):
         button_x = SCREEN_WIDTH / 2
         button_y = 330
-        button_width = 150
-        button_height = 50
+        button_width = 180
+        button_height = 80
 
         button_rect = pygame.Rect(
             button_x - button_width / 2,

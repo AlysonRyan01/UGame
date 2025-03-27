@@ -6,7 +6,7 @@ class BasePlayer(ABC):
         self.score = 1500
 
     def update_score(self, roulette_score):
-        self.score -= 500
+        self.score -= 400
         self.score += roulette_score
 
     def get_score(self):
