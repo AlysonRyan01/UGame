@@ -8,11 +8,11 @@ from Const import SCREEN_WIDTH, MENU_OPTION
 class Menu:
     def __init__(self, screen):
         self.screen = screen
-        self.surf = pygame.image.load('./Assets/Cover.png')
+        self.surf = pygame.image.load('./Assets/Cover_menu.png')
         self.rect = self.surf.get_rect()
         self.image = pygame.image.load('./Assets/Roleta.png')
-        self.image = pygame.transform.scale(self.image, (300, 300))
-        self.image_rect = self.image.get_rect(center=(SCREEN_WIDTH / 2, 270))
+        self.image = pygame.transform.scale(self.image, (400, 400))
+        self.image_rect = self.image.get_rect(center=(SCREEN_WIDTH / 2, 400))
         self.angle = 0
 
     def run (self):
@@ -20,7 +20,6 @@ class Menu:
         pygame.mixer_music.play(-1)
         while True:
             self.screen.blit(source=self.surf, dest=self.rect)
-            self.menu_text(60, "ROLETA ONLINE", (255, 215, 0), ((SCREEN_WIDTH / 2),  70))
 
             rotated_image = pygame.transform.rotate(self.image, self.angle)
             rotated_rect = rotated_image.get_rect(center=self.image_rect.center)
@@ -28,7 +27,7 @@ class Menu:
 
             self.angle -= 1
 
-            self.menu_text(30, MENU_OPTION[0], (255, 255, 255), ((SCREEN_WIDTH / 2), 460))
+            self.menu_text(30, MENU_OPTION[0], (255, 255, 255), ((SCREEN_WIDTH / 2), 650))
 
             pygame.display.flip()
 
@@ -57,7 +56,7 @@ class Menu:
 
     def is_mouse_over_button(self, mouse_x, mouse_y):
         button_x = SCREEN_WIDTH / 2
-        button_y = 460
+        button_y = 650
         button_width = 150
         button_height = 50
 
