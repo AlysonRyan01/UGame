@@ -1,19 +1,23 @@
 import pygame
 
+from Classes.Level import Level
 from Classes.Menu import Menu
+from Const import SCREEN_WIDTH, SCREEN_HEIGHT, MENU_OPTION
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((900, 506))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def run(self):
+
         while True:
             menu = Menu(self.screen)
-            menu.run()
-            pass
-        #     for event in pygame.event.get():
-        #         if event.type == pygame.QUIT:
-        #             pygame.quit()
-        #             quit()
+            menu_return = menu.run()
+
+            if menu_return == MENU_OPTION[0]:
+                level = Level(self.screen, 'JOGO')
+                level_return = level.run()
+
+
