@@ -1,3 +1,5 @@
+import sys
+import os
 import random
 import pygame
 import threading
@@ -13,17 +15,17 @@ class Level:
     def __init__(self, screen, name):
         self.screen = screen
         self.name = name
-        self.image = pygame.image.load('./Assets/Roleta.png')
-        self.seta_roleta = pygame.image.load('./Assets/seta.png')
-        self.rosto_normal = pygame.image.load('./Assets/rosto_normal.png')
-        self.rosto_feliz1 = pygame.image.load('./Assets/rosto_feliz1.png')
-        self.rosto_feliz2 = pygame.image.load('./Assets/rosto_feliz2.png')
-        self.rosto_feliz3 = pygame.image.load('./Assets/rosto_feliz3.png')
-        self.rosto_feliz4 = pygame.image.load('./Assets/rosto_feliz4.png')
-        self.rosto_triste1 = pygame.image.load('./Assets/rosto_triste1.png')
-        self.rosto_triste2 = pygame.image.load('./Assets/rosto_triste2.png')
-        self.rosto_triste3 = pygame.image.load('./Assets/rosto_triste3.png')
-        self.rosto_triste4 = pygame.image.load('./Assets/rosto_triste4.png')
+        self.image = pygame.image.load(self.resource_path('./Assets/Roleta.png'))
+        self.seta_roleta = pygame.image.load(self.resource_path('./Assets/seta.png'))
+        self.rosto_normal = pygame.image.load(self.resource_path('./Assets/rosto_normal.png'))
+        self.rosto_feliz1 = pygame.image.load(self.resource_path('./Assets/rosto_feliz1.png'))
+        self.rosto_feliz2 = pygame.image.load(self.resource_path('./Assets/rosto_feliz2.png'))
+        self.rosto_feliz3 = pygame.image.load(self.resource_path('./Assets/rosto_feliz3.png'))
+        self.rosto_feliz4 = pygame.image.load(self.resource_path('./Assets/rosto_feliz4.png'))
+        self.rosto_triste1 = pygame.image.load(self.resource_path('./Assets/rosto_triste1.png'))
+        self.rosto_triste2 = pygame.image.load(self.resource_path('./Assets/rosto_triste2.png'))
+        self.rosto_triste3 = pygame.image.load(self.resource_path('./Assets/rosto_triste3.png'))
+        self.rosto_triste4 = pygame.image.load(self.resource_path('./Assets/rosto_triste4.png'))
         self.rostos_tristes_list = [self.rosto_triste1, self.rosto_triste2, self.rosto_triste3, self.rosto_triste4]
         self.rostos_felizes_list = [self.rosto_feliz1, self.rosto_feliz2, self.rosto_feliz3, self.rosto_feliz4]
         self.image = pygame.transform.scale(self.image, (600, 600))
@@ -76,7 +78,7 @@ class Level:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -96,7 +98,7 @@ class Level:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
 
             time.sleep(3)
             return False
@@ -213,3 +215,13 @@ class Level:
         )
 
         return button_rect.collidepoint(mouse_x, mouse_y)
+
+    def resource_path(self, relative_path):
+        try:
+            # Para o PyInstaller
+            base_path = sys._MEIPASS
+        except Exception:
+            # Para ambiente de desenvolvimento
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)

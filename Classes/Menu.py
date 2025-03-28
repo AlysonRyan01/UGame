@@ -1,3 +1,5 @@
+import sys
+import os
 import pygame
 from pygame import Surface, Rect
 from pygame.font import Font
@@ -8,7 +10,7 @@ from Const import SCREEN_WIDTH, MENU_OPTION
 class Menu:
     def __init__(self, screen):
         self.screen = screen
-        self.surf = pygame.image.load('./Assets/Cover_menu.png')
+        self.surf = pygame.image.load(self.resource_path('./Assets/Cover_menu.png'))
         self.rect = self.surf.get_rect()
         self.image = pygame.image.load('./Assets/Roleta.png')
         self.image = pygame.transform.scale(self.image, (400, 400))
@@ -34,7 +36,7 @@ class Menu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
@@ -68,3 +70,13 @@ class Menu:
         )
 
         return button_rect.collidepoint(mouse_x, mouse_y)
+
+    def resource_path(self, relative_path):
+        try:
+            # Para o PyInstaller
+            base_path = sys._MEIPASS
+        except Exception:
+            # Para ambiente de desenvolvimento
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
